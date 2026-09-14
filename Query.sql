@@ -802,9 +802,7 @@ VALUES (1, 1, 101, 'Disponible'),
 (11, 21, 404, 'Disponible'),
 (12, 21, 405, 'Disponible');
 
-USE Hotel
-GO
-
+SET DATEFORMAT ymd;
 
 INSERT INTO RESERVA(ID_huesped,fecha_reserva,fecha_entrada,fecha_salida,cantidad_menores,cantidad_adultos)
 VALUES (1, '2026-09-01', '2026-09-05', '2026-09-10', 0, 2),
