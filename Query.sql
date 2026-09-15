@@ -134,7 +134,7 @@ telefono VARCHAR(50) NOT NULL,
 tipo_contacto VARCHAR(50),
 
 -- Relacion
-CONSTRAINT FK_telefono_huesped_huesped FOREIGN KEY(ID_telefono) REFERENCES HUESPED(ID_huesped)
+CONSTRAINT FK_telefono_huesped_huesped FOREIGN KEY(ID_huesped) REFERENCES HUESPED(ID_huesped)
 );
 GO
 
