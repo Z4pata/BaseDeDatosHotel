@@ -938,3 +938,232 @@ VALUES (1, 'Tarjeta Crédito', 170000, '2026-09-02'),
 (20, 'Tarjeta Crédito', 370000, '2026-09-20'),
 (20, 'Tarjeta Crédito', 370000, '2026-09-21');
 
+-- CONSULTAS SELECT
+
+-- Consulta 1: huéspedes por edad
+SELECT
+    edad,
+    COUNT(*) AS cantidad_huespedes
+FROM HUESPED
+WHERE edad BETWEEN 18 AND 60
+GROUP BY edad
+HAVING COUNT(*) >= 1
+ORDER BY edad ASC;
+GO
+
+-- Consulta 2: tipos de habitación con precio mayor a 100000
+SELECT
+    nombre_tipo,
+    COUNT(*) AS cantidad_tipos,
+    AVG(precio_habitacion) AS precio_promedio
+FROM TIPO_HABITACION
+WHERE precio_habitacion > 100000
+GROUP BY nombre_tipo
+HAVING COUNT(*) >= 1
+ORDER BY precio_promedio DESC;
+GO
+
+-- Consulta 3: habitaciones según estado
+SELECT
+    estado,
+    COUNT(*) AS total_habitaciones
+FROM HABITACION
+WHERE estado IN ('Disponible', 'Ocupada', 'Mantenimiento')
+GROUP BY estado
+HAVING COUNT(*) > 0
+ORDER BY total_habitaciones DESC;
+GO
+
+-- Consulta 4: reservas por cantidad de adultos
+SELECT
+    cantidad_adultos,
+    COUNT(*) AS total_reservas
+FROM RESERVA
+WHERE cantidad_adultos >= 1
+GROUP BY cantidad_adultos
+HAVING COUNT(*) >= 1
+ORDER BY total_reservas DESC, cantidad_adultos ASC;
+GO
+
+-- Consulta 5: teléfonos por tipo de contacto
+SELECT
+    tipo_contacto,
+    COUNT(*) AS total_telefonos
+FROM TELEFONO_HUESPED
+WHERE tipo_contacto IS NOT NULL
+GROUP BY tipo_contacto
+HAVING COUNT(*) >= 1
+ORDER BY total_telefonos DESC, tipo_contacto ASC;
+GO
+
+
+-- CONSULTAS JOIN
+
+--π_{nombre_huesped, apellido_huesped, fecha_entrada, fecha_salida}( σ_{h.ID_huesped = r.ID_huesped}(HUESPED × RESERVA) )
+
+SELECT nombre_huesped,h.apellido_huesped,r.fecha_entrada,r.fecha_salida
+FROM HUESPED h
+INNER JOIN RESERVA r
+ON r.ID_huesped = h.ID_huesped
+
+-- π_{ID_reserva, ID_sede, numero_habitacion}( HABITACION ⟕_{h.ID_habitacion = rh.ID_habitacion} RESERVA_HABITACION )
+
+SELECT rh.ID_reserva,h.ID_sede,h.numero_habitacion
+FROM HABITACION h
+LEFT JOIN RESERVA_HABITACION rh
+ON rh.ID_habitacion = h.ID_habitacion
+
+-- π_{nombre_tipo, numero_habitacion}( HABITACION ⟖_{h.ID_tipo_habitacion = tp.ID_tipo_habitacion} TIPO_HABITACION )
+
+SELECT tp.nombre_tipo,h.numero_habitacion
+FROM HABITACION h
+RIGHT JOIN TIPO_HABITACION tp
+ON h.ID_tipo_habitacion = tp.ID_tipo_habitacion
+
+-- π_{ID_habitacion, numero_habitacion}( HABITACION ⟗_{h.ID_habitacion = rh.ID_habitacion} RESERVA_HABITACION )
+
+SELECT rh.ID_habitacion, h.numero_habitacion
+FROM HABITACION h
+FULL JOIN RESERVA_HABITACION rh
+ON h.ID_habitacion = rh.ID_habitacion
+
+-- π_{nombre_huesped, apellido_huesped, tipo_servicio}(HUESPED × SERVICIO)
+
+SELECT h.nombre_huesped,h.apellido_huesped, s.tipo_servicio
+FROM HUESPED h
+CROSS JOIN SERVICIO s
+
+-- MANIPULACION DE DATOS Y ESTRUCTURA
+
+-- 1.1 
+DELETE TOP (1)
+FROM PAGO;
+
+GO
+-- 1.2
+
+DELETE TOP (1)
+FROM RESERVA_SERVICIO;
+
+GO
+-- 1.3 
+
+DELETE TOP (1)
+FROM RESERVA_HABITACION;
+
+GO
+
+-- 1.4
+
+DELETE TOP (1)
+FROM TELEFONO_SEDE;
+
+GO
+
+-- 1.5 
+
+DELETE TOP (1)
+FROM TELEFONO_HUESPED;
+
+GO
+
+-- 2.1
+UPDATE TOP (1) SERVICIO
+SET precio_servicio = precio_servicio + 5000;
+GO
+
+-- 2.2
+UPDATE TOP (1) CIUDAD
+SET nombre_ciudad = 'Medellin';
+GO
+
+-- 2.3
+UPDATE TOP (1) HUESPED
+SET correo = 'correo_actualizado@hotel.com';
+GO
+
+-- 2.4
+UPDATE TOP (1) SEDE
+SET direccion = 'Carrera 50 # 50-20';
+GO
+
+-- 2.5
+UPDATE TOP (1) HABITACION
+SET estado = 'Disponible';
+GO
+
+
+-- 3.1
+ALTER TABLE TELEFONO_SEDE
+DROP COLUMN tipo_contacto;
+GO
+
+-- 3.2
+ALTER TABLE TELEFONO_HUESPED
+DROP COLUMN tipo_contacto;
+GO
+
+-- 3.3
+ALTER TABLE HABITACION
+DROP COLUMN estado;
+GO
+
+-- 3.4
+ALTER TABLE FACTURA
+DROP COLUMN estado;
+GO
+
+-- 3.5
+ALTER TABLE SEDE
+DROP COLUMN direccion;
+GO
+
+-- 4.1
+ALTER TABLE CIUDAD
+ALTER COLUMN nombre_ciudad VARCHAR(150) NOT NULL;
+GO
+
+-- 4.2
+ALTER TABLE SERVICIO
+ALTER COLUMN tipo_servicio VARCHAR(150) NOT NULL;
+GO
+
+-- 4.3
+ALTER TABLE HUESPED
+ALTER COLUMN correo VARCHAR(250) NOT NULL;
+GO
+
+-- 4.4
+ALTER TABLE SEDE
+ALTER COLUMN nombre_sede VARCHAR(150) NOT NULL;
+GO
+
+-- 4.5
+ALTER TABLE HABITACION
+ALTER COLUMN numero_habitacion VARCHAR(20) NOT NULL;
+GO
+
+-- 5.1
+ALTER TABLE SERVICIO
+ADD descripcion VARCHAR(250) NULL;
+GO
+
+-- 5.2
+ALTER TABLE CIUDAD
+ADD codigo_postal VARCHAR(20) NULL;
+GO
+
+-- 5.3
+ALTER TABLE HUESPED
+ADD telefono_emergencia VARCHAR(50) NULL;
+GO
+
+-- 5.4
+ALTER TABLE HABITACION
+ADD observaciones VARCHAR(250) NULL;
+GO
+
+-- 5.5
+ALTER TABLE FACTURA
+ADD observaciones VARCHAR(250) NULL;
+GO
