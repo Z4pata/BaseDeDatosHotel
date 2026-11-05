@@ -21,13 +21,13 @@ RETURNS TABLE
 AS
 RETURN  SELECT ID_reserva,ID_huesped, fecha_reserva, fecha_entrada, fecha_salida, cantidad_adultos+cantidad_menores AS Cantidad_Huespedes
 		FROM RESERVA
-		WHERE Extract(Month from fecha_reserva) = @Mes AND Extract(Year from fecha_reserva) = @Año
+		WHERE MONTH(fecha_reserva) = @Mes AND YEAR(fecha_reserva) = @Año
 
 
 CREATE OR ALTER FUNCTION fn_FacturasPendientes()
 RETURNS TABLE
 AS
-RETURN  SELECT f.ID_factura, h.nombre_huesped+h.apellido_huesped AS Nombre_Completo, f.total_factura
+RETURN  SELECT f.ID_factura, h.nombre_huesped+' '+h.apellido_huesped AS Nombre_Completo, f.total_factura
 		FROM FACTURA AS f
 		INNER JOIN RESERVA AS r 
 			ON f.ID_reserva = r.ID_reserva

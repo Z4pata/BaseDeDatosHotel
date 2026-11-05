@@ -24,7 +24,7 @@ BEGIN
     RETURN @PrecioNoche * @Noches  
 END
   
-CREATE OR ALTER FUNCTION ClienteFrecuente(  
+CREATE OR ALTER FUNCTION fn_HuespedFrecuente(  
     @Id_Huesped INT  
 )  
 RETURNS BIT  
@@ -39,22 +39,22 @@ BEGIN
     IF(@NumeroReservas >= 5)  
         RETURN 1;  
     RETURN 0;  
-END  
+END 
   
-CREATE OR ALTER FUNCTION DisponibilidadHabitacion(  
-    @Id_Habitación INT,  
+CREATE OR ALTER FUNCTION fn_DisponibilidadHabitacion(  
+    @Id_Habitacion INT,  
     @Id_Sede INT  
 )  
 RETURNS BIT  
 AS  
 BEGIN  
-    DECLARE @Estado_Habitación VARCHAR(50);  
+    DECLARE @Estado_Habitacion VARCHAR(50);  
   
-    SELECT @Estado_Habitación = estado  
+    SELECT @Estado_Habitacion = estado  
     FROM HABITACION  
-    WHERE @Id_Habitación = ID_habitacion AND @Id_Sede = ID_sede;  
+    WHERE @Id_Habitacion = ID_habitacion AND @Id_Sede = ID_sede;  
   
-    IF(@Estado_Habitación = 'Disponible')  
+    IF(@Estado_Habitacion = 'Disponible')  
         RETURN 1;  
     RETURN 0;  
-END*/  
+END  */
