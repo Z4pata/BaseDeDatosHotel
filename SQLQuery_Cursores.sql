@@ -1,6 +1,8 @@
 USE Hotel;
 GO
 
+--Resvisa fila por fila las reservas y verifica cuales ya no estan vigentes para actualizar su estado a "Disponible"
+
 CREATE OR ALTER PROCEDURE sp_ActualizarEstadoReservas
 AS
 BEGIN
@@ -41,6 +43,8 @@ BEGIN
     DEALLOCATE curs_reservas;
 END;
 GO
+
+--Recorre fila por fila las habitaciones y verifica cuantas reservas a tenido, luego de eso cambia su estdado a "Mantenimiento"
 
 CREATE OR ALTER PROCEDURE sp_ProgramarMantenimientoHabitaciones
 AS
