@@ -4,7 +4,13 @@ using System.Text;
 
 namespace Hotel.SHARED.Entities
 {
-    internal class Factura
+    public class Factura
     {
+        public int Id { get; set; }
+        public int IdReserva { get; set; }
+        public DateTime Fecha_Factura { get; set; } = DateTime.Now;
+        public decimal Total { get; set; }
+        public string estado { get; set; }
+
     }
 }
