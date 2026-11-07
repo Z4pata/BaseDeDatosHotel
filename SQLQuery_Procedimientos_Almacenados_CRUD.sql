@@ -350,6 +350,44 @@ BEGIN
 END
 GO
 
+-- Insert tabla intermedia RESERVA_HABITACION
+CREATE OR ALTER PROCEDURE sp_ReservaHabitacion_Insertar 
+    @id_reserva INT, 
+    @id_habitacion INT 
+AS 
+BEGIN 
+    SET NOCOUNT ON; 
+    -- 1. Validar que la reserva exista 
+    IF NOT EXISTS (SELECT 1 FROM RESERVA WHERE ID_reserva = @id_reserva) 
+        BEGIN 
+            RAISERROR('La reserva especificada no existe.', 16, 1); 
+            RETURN; 
+        END 
+    -- 2. Validar que la habitación exista 
+    IF NOT EXISTS (SELECT 1 FROM HABITACION WHERE ID_habitacion = @id_habitacion) 
+        BEGIN 
+            RAISERROR('La habitación especificada no existe.', 16, 1); 
+            RETURN; 
+        END 
+    -- 3. Validar que la habitación esté disponible 
+    IF EXISTS (SELECT 1 FROM HABITACION WHERE ID_habitacion = @id_habitacion AND estado <> 'Disponible') 
+    BEGIN 
+        RAISERROR('La habitación seleccionada no se encuentra disponible.', 16, 1); 
+        RETURN; 
+    END 
+    -- 4. Validar que la habitación no esté asignada previamente a esta misma reserva 
+    IF EXISTS (SELECT 1 FROM RESERVA_HABITACION WHERE ID_reserva = @id_reserva AND ID_habitacion = @id_habitacion) 
+    BEGIN 
+        RAISERROR('La habitación ya está asignada a esta reserva.', 16, 1); 
+        RETURN; 
+    END 
+    -- 5. Insertar la relación (El trigger trg\_MarcarHabitacionOcupada cambiará el estado a 'Ocupada') 
+    INSERT INTO RESERVA_HABITACION (ID_reserva, ID_habitacion) VALUES (@id_reserva, @id_habitacion); 
+END; 
+GO
+
+
+
 -- Reserva CRUD
 
 CREATE OR ALTER PROCEDURE sp_Reserva_Insertar
@@ -389,6 +427,55 @@ BEGIN
 END
 GO
 
+-- Creacion completa de la reserva, con su habitacion
+
+CREATE OR ALTER PROCEDURE sp_ReservaCompleta_Insertar 
+    @id_huesped INT, 
+    @fecha_reserva DATE, 
+    @fecha_entrada DATE, 
+    @fecha_salida DATE, 
+    @cantidad_adultos INT, 
+    @cantidad_menores INT, 
+    @id_habitacion INT 
+AS 
+BEGIN 
+    SET NOCOUNT ON; 
+    BEGIN TRY 
+    -- 1. Iniciar la transacción 
+        BEGIN TRANSACTION; 
+        -- Validar fechas 
+            IF @fecha_salida <= @fecha_entrada 
+            BEGIN 
+                RAISERROR('La fecha de salida debe ser mayor a la fecha de entrada.', 16, 1); 
+            END 
+        -- 2. Insertar en la tabla RESERVA 
+        INSERT INTO RESERVA (
+            ID_huesped, 
+            fecha_reserva, 
+            fecha_entrada, 
+            fecha_salida, 
+            cantidad_adultos, 
+            cantidad_menores) 
+            VALUES (@id_huesped, @fecha_reserva, @fecha_entrada, @fecha_salida, @cantidad_adultos, @cantidad_menores); 
+            -- Obtener el ID de la reserva recién generada 
+            DECLARE @id_reserva INT = SCOPE_IDENTITY(); 
+            
+            -- 3. Llamar al SP para asignar la habitación (ejecuta validaciones y dispara el trigger) 
+            EXEC sp_ReservaHabitacion_Insertar @id_reserva = @id_reserva, @id_habitacion = @id_habitacion; 
+            
+            -- 4. Si todo salió bien, confirmar la transacción en la base de datos 
+        COMMIT TRANSACTION; 
+    END TRY 
+    BEGIN CATCH 
+    -- 5. Si ocurrió cualquier error en el proceso, revertir TODO 
+        IF @@TRANCOUNT > 0 
+            ROLLBACK TRANSACTION; 
+        -- Relanzar el mensaje de error para que lo reciba el Backend (.NET) 
+        THROW; 
+    END CATCH 
+END; 
+GO
+
 CREATE OR ALTER PROCEDURE sp_Reserva_Consultar
 AS
 BEGIN
@@ -405,6 +492,29 @@ BEGIN
     WHERE id_reserva = @id_reserva;
 END
 GO
+
+-- Reserva completa eliminar
+CREATE OR ALTER PROCEDURE sp_ReservaCompleta_Eliminar
+    @id_reserva INT
+AS
+BEGIN
+    BEGIN TRY
+        BEGIN TRANSACTION
+
+            DELETE FROM RESERVA_HABITACION
+                WHERE id_reserva = @id_reserva;
+
+            EXEC sp_Reserva_Eliminar @id_reserva = @id_reserva;
+
+        COMMIT TRANSACTION
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 
+                ROLLBACK TRANSACTION; 
+            -- Relanzar el mensaje de error para que lo reciba el Backend (.NET) 
+            THROW; 
+    END CATCH
+END;    
 
 -- Factura insertar
 
