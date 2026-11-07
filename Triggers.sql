@@ -1,3 +1,5 @@
+USE Hotel;
+
 -- 1. Tabla de seguridad para registrar la firma de integridad 
 CREATE TABLE PAGO_FIRMADO ( 
 	ID_pago INT PRIMARY KEY, 
@@ -99,5 +101,30 @@ BEGIN
 		FROM deleted d 
 		INNER JOIN inserted i ON d.ID_detalle = i.ID_detalle; 
 	END 
+END; 
+GO
+
+-- 6. Actualiza el estado de una habitacion al hacer una reserva
+CREATE TRIGGER trg_MarcarHabitacionOcupada 
+ON RESERVA_HABITACION 
+AFTER INSERT 
+AS 
+BEGIN 
+	-- Actualiza el estado de la habitación asignada a 'Ocupada' 
+	UPDATE HABITACION SET estado = 'Ocupada' 
+		WHERE ID_habitacion IN ( SELECT ID_habitacion FROM inserted ); 
+END; 
+GO
+
+-- 7. Actualiza el estado de una habitacion al terminar la reserva
+CREATE TRIGGER trg_LiberarHabitacion 
+ON RESERVA_HABITACION 
+AFTER DELETE 
+AS 
+BEGIN 
+	SET NOCOUNT ON; 
+	-- Devuelve el estado de la habitación a 'Disponible' 
+	UPDATE HABITACION SET estado = 'Disponible' 
+		WHERE ID_habitacion IN ( SELECT ID_habitacion FROM deleted ); 
 END; 
 GO
