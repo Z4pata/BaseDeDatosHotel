@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Hotel.API/Hotel.API.csproj" />
+  <Project Path="Hotel.SHARED/Hotel.SHARED.csproj" />
+  <Project Path="Hotel.WEB/Hotel.WEB.csproj" />
+</Solution>
