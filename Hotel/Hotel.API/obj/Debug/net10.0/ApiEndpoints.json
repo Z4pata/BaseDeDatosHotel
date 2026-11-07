@@ -1,0 +1,239 @@
+[
+  {
+    "ContainingType": "Hotel.API.Controllers.HabitacionesController",
+    "Method": "CrearHabitacion",
+    "RelativePath": "api/habitaciones",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "habitacion",
+        "Type": "Hotel.SHARED.Entities.Habitacion",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Hotel.API.Controllers.HabitacionesController",
+    "Method": "ObtenerHabitaciones",
+    "RelativePath": "api/habitaciones",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Hotel.API.Controllers.HabitacionesController",
+    "Method": "ObtenerHuespedesId",
+    "RelativePath": "api/habitaciones/{Id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Hotel.API.Controllers.HabitacionesController",
+    "Method": "ActualizarHabitacion",
+    "RelativePath": "api/habitaciones/{Id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "habitacion",
+        "Type": "Hotel.SHARED.Entities.Habitacion",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Hotel.API.Controllers.HabitacionesController",
+    "Method": "EliminarHabitacion",
+    "RelativePath": "api/habitaciones/{Id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Hotel.API.Controllers.HuespedesControllers",
+    "Method": "CrearHuesped",
+    "RelativePath": "api/huespedes",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "huesped",
+        "Type": "Hotel.SHARED.Entities.Huesped",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Hotel.API.Controllers.HuespedesControllers",
+    "Method": "ObtenerHuespedes",
+    "RelativePath": "api/huespedes",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Hotel.API.Controllers.HuespedesControllers",
+    "Method": "ObtenerHuespedesId",
+    "RelativePath": "api/huespedes/{Id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Hotel.API.Controllers.HuespedesControllers",
+    "Method": "ActualizarHuesped",
+    "RelativePath": "api/huespedes/{Id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "huesped",
+        "Type": "Hotel.SHARED.Entities.Huesped",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Hotel.API.Controllers.HuespedesControllers",
+    "Method": "EliminarHuespedes",
+    "RelativePath": "api/huespedes/{Id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Hotel.API.Controllers.ReservasControllers",
+    "Method": "CrearReserva",
+    "RelativePath": "api/reservas",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "reserva",
+        "Type": "Hotel.SHARED.Entities.Reserva",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Hotel.API.Controllers.ReservasControllers",
+    "Method": "ObtenerReservas",
+    "RelativePath": "api/reservas",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Hotel.API.Controllers.ReservasControllers",
+    "Method": "ObtenerReservasId",
+    "RelativePath": "api/reservas/{Id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Hotel.API.Controllers.ReservasControllers",
+    "Method": "ActualizarReserva",
+    "RelativePath": "api/reservas/{Id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "reserva",
+        "Type": "Hotel.SHARED.Entities.Reserva",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Hotel.API.Controllers.ReservasControllers",
+    "Method": "EliminarReserva",
+    "RelativePath": "api/reservas/{Id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
