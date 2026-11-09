@@ -9,7 +9,7 @@ namespace Hotel.API.Controllers
     [Route("api/huespedes")]
     public class HuespedesControllers : ControllerBase
     {
-        private readonly string connectionString = "Server=ANDRESAYALA18;Database=Hotel;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string connectionString = "Server=localhost;Database=Hotel;Trusted_Connection=True;TrustServerCertificate=True;";
 
         [HttpPost]
         public async Task<IActionResult> CrearHuesped(Huesped huesped)
