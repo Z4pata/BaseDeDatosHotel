@@ -3,3 +3,17 @@
 ################################################################################
 
 /Hotel/.vs
+.vs
+
+/Hotel/Hotel.API/bin
+/Hotel/Hotel.API/obj
+
+/Hotel/Hotel.SHARED/bin
+/Hotel/Hotel.SHARED/obj
+
+/Hotel/Hotel.WEB/bin
+/Hotel/Hotel.WEB/obj
+
+# Build
+[Bb]in/
+[Oo]bj/
