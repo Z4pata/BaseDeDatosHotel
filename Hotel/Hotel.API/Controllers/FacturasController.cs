@@ -1,4 +1,5 @@
-﻿using Hotel.SHARED.Views;
+﻿using Hotel.SHARED.dtos;
+using Hotel.SHARED.Views;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using System.Data;
@@ -10,6 +11,26 @@ namespace Hotel.API.Controllers
     public class FacturasController: ControllerBase
     {
         private readonly string connectionString = "Server=localhost;Database=Hotel;Trusted_Connection=True;TrustServerCertificate=True;";
+
+        [HttpPost]
+        public async Task<IActionResult> CrearFactura(CrearFacturaRequest request)
+        {
+            await using var connection = new SqlConnection(connectionString);
+            await using var command = new SqlCommand("sp_Factura_Insertar", connection)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            command.Parameters.AddWithValue("@id_reserva", request.IdReserva);
+            command.Parameters.AddWithValue("@fecha_factura", request.FechaFactura);
+            command.Parameters.AddWithValue("@total_factura", request.TotalFactura);
+            command.Parameters.AddWithValue("@estado", request.Estado);
+
+            await connection.OpenAsync();
+            await command.ExecuteNonQueryAsync();
+
+            return StatusCode(StatusCodes.Status201Created, request);
+        }
 
         [HttpGet("resumen")]
         public async Task<IActionResult> ObtenerFacturacionResumen()
