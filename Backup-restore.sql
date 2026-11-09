@@ -92,7 +92,7 @@ GO
 
 -- Restaurar Backup LOG
 -- primero se restaura el FULL
-RESTORE DATABASE Hoteleria
+RESTORE DATABASE Hotel
 FROM DISK = 'C:\SQLSERVERBackup\Hotel_FULL.bak'
 WITH NORECOVERY, REPLACE;
 GO
