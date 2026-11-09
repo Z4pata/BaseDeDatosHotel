@@ -116,6 +116,100 @@ BEGIN
 END; 
 GO
 
+-- Generar factura al reservar una habitacion
+CREATE OR ALTER TRIGGER trg_GenerarFacturaReservaHabitacion
+ON RESERVA_HABITACION
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @ReservasAfectadas TABLE
+    (
+        ID_reserva INT PRIMARY KEY
+    );
+
+    INSERT INTO @ReservasAfectadas (ID_reserva)
+    SELECT DISTINCT ID_reserva
+    FROM inserted;
+
+    -- Validar que existan fechas válidas para calcular las noches
+    IF EXISTS
+    (
+        SELECT 1
+        FROM @ReservasAfectadas ra
+        INNER JOIN dbo.RESERVA r
+            ON r.ID_reserva = ra.ID_reserva
+        WHERE r.fecha_entrada IS NULL
+           OR r.fecha_salida IS NULL
+           OR r.fecha_salida <= r.fecha_entrada
+    )
+    BEGIN
+        THROW 51001,
+            'No se puede generar la factura porque la reserva no tiene fechas válidas.',
+            1;
+    END;
+
+    DECLARE @TotalesPorReserva TABLE
+    (
+        ID_reserva INT PRIMARY KEY,
+        total_factura DECIMAL(18, 2)
+    );
+
+    -- Recalcular el total de cada reserva afectada
+    INSERT INTO @TotalesPorReserva
+    (
+        ID_reserva,
+        total_factura
+    )
+    SELECT
+        ra.ID_reserva,
+        SUM(
+            CAST(t.precio_habitacion AS DECIMAL(18, 2))
+            * DATEDIFF(DAY, r.fecha_entrada, r.fecha_salida)
+        ) AS total_factura
+    FROM @ReservasAfectadas ra
+    INNER JOIN dbo.RESERVA r
+        ON r.ID_reserva = ra.ID_reserva
+    INNER JOIN dbo.RESERVA_HABITACION rh
+        ON rh.ID_reserva = r.ID_reserva
+    INNER JOIN dbo.HABITACION h
+        ON h.ID_habitacion = rh.ID_habitacion
+    INNER JOIN dbo.TIPO_HABITACION t
+        ON t.ID_tipo_habitacion = h.ID_tipo_habitacion
+    GROUP BY
+        ra.ID_reserva;
+
+    -- Si ya existe una factura, actualizar su total
+    UPDATE f
+    SET f.total_factura = t.total_factura
+    FROM dbo.FACTURA f
+    INNER JOIN @TotalesPorReserva t
+        ON t.ID_reserva = f.ID_reserva;
+
+    -- Si no existe una factura, crearla
+    INSERT INTO dbo.FACTURA
+    (
+        ID_reserva,
+        fecha_factura,
+        total_factura,
+        estado
+    )
+    SELECT
+        t.ID_reserva,
+        GETDATE(),
+        t.total_factura,
+        'PENDIENTE'
+    FROM @TotalesPorReserva t
+    WHERE NOT EXISTS
+    (
+        SELECT 1
+        FROM dbo.FACTURA f
+        WHERE f.ID_reserva = t.ID_reserva
+    );
+END;
+GO
+
 -- 7. Actualiza el estado de una habitacion al terminar la reserva
 CREATE TRIGGER trg_LiberarHabitacion 
 ON RESERVA_HABITACION 
