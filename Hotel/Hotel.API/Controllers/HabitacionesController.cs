@@ -1,4 +1,5 @@
 ﻿using Hotel.SHARED.Entities;
+using Hotel.SHARED.Views;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using System.Data;
@@ -9,7 +10,7 @@ namespace Hotel.API.Controllers
     [Route("api/habitaciones")]
     public class HabitacionesController: ControllerBase
     {
-        private readonly string connectionString = "Server=ANDRESAYALA18;Database=Hotel;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string connectionString = "Server=localhost;Database=Hotel;Trusted_Connection=True;TrustServerCertificate=True;";
 
         [HttpPost]
         public async Task<IActionResult> CrearHabitacion(Habitacion habitacion)
@@ -55,6 +56,41 @@ namespace Hotel.API.Controllers
                 };
                 habitaciones.Add(habitacion);
             }
+            return Ok(habitaciones);
+        }
+
+        [HttpGet("detalle")]
+        public async Task<IActionResult> ObtenerHabitacionesDetalle()
+        {
+            var habitaciones = new List<HabitacionesSedeView>();
+
+            await using var connection = new SqlConnection(connectionString);
+            await using var command = new SqlCommand(
+                "SELECT ID_habitacion, numero_habitacion, nombre_tipo, capacidad, precio_habitacion, ID_sede, nombre_sede, nombre_ciudad " +
+                "FROM dbo.vw_habitaciones_sede ORDER BY ID_habitacion",
+                connection)
+            {
+                CommandType = CommandType.Text
+            };
+
+            await connection.OpenAsync();
+            await using var reader = await command.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                habitaciones.Add(new HabitacionesSedeView
+                {
+                    IdHabitacion = Convert.ToInt32(reader["ID_habitacion"]),
+                    NumeroHabitacion = Convert.ToString(reader["numero_habitacion"]),
+                    NombreTipo = Convert.ToString(reader["nombre_tipo"]),
+                    Capacidad = Convert.ToInt32(reader["capacidad"]),
+                    PrecioHabitacion = Convert.ToDecimal(reader["precio_habitacion"]),
+                    IdSede = Convert.ToInt32(reader["ID_sede"]),
+                    NombreSede = Convert.ToString(reader["nombre_sede"]),
+                    NombreCiudad = Convert.ToString(reader["nombre_ciudad"])
+                });
+            }
+
             return Ok(habitaciones);
         }
 
