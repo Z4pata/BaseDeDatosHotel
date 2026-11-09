@@ -189,7 +189,7 @@ namespace Hotel.API.Controllers
             public async Task<IActionResult> EliminarReserva(int Id)
             {
                 await using var connection = new SqlConnection(connectionString);
-                await using var command = new SqlCommand("sp_Reserva_Eliminar", connection)
+                await using var command = new SqlCommand("sp_ReservaCompleta_Eliminar", connection)
                 {
                     CommandType = CommandType.StoredProcedure
                 };
