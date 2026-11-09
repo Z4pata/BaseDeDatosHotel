@@ -1,4 +1,5 @@
-﻿using Hotel.SHARED.Entities;
+﻿using Hotel.SHARED.dtos;
+using Hotel.SHARED.Entities;
 using Hotel.SHARED.Views;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -30,6 +31,29 @@ namespace Hotel.API.Controllers
                 await command.ExecuteNonQueryAsync();
 
                 return StatusCode(StatusCodes.Status201Created, reserva);
+            }
+
+            [HttpPost("completa")]
+            public async Task<IActionResult> CrearReservaCompleta(ReservaCompletaRequest request)
+            {
+                await using var connection = new SqlConnection(connectionString);
+                await using var command = new SqlCommand("sp_ReservaCompleta_Insertar", connection)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                command.Parameters.AddWithValue("@id_huesped", request.IdHuesped);
+                command.Parameters.AddWithValue("@fecha_reserva", request.FechaReserva);
+                command.Parameters.AddWithValue("@fecha_entrada", request.FechaEntrada);
+                command.Parameters.AddWithValue("@fecha_salida", request.FechaSalida);
+                command.Parameters.AddWithValue("@cantidad_adultos", request.CantidadAdultos);
+                command.Parameters.AddWithValue("@cantidad_menores", request.CantidadMenores);
+                command.Parameters.AddWithValue("@id_habitacion", request.IdHabitacion);
+
+                await connection.OpenAsync();
+                await command.ExecuteNonQueryAsync();
+
+                return StatusCode(StatusCodes.Status201Created, request);
             }
 
             [HttpGet]
