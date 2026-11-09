@@ -514,7 +514,92 @@ BEGIN
             -- Relanzar el mensaje de error para que lo reciba el Backend (.NET) 
             THROW; 
     END CATCH
-END;    
+END;
+
+-- Contratar un servicio
+CREATE OR ALTER PROCEDURE sp_Reserva_Servicio_Insertar
+    @ID_reserva INT,
+    @ID_servicio INT,
+    @cantidad_servicio INT = 1
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    DECLARE @precio_servicio DECIMAL(18, 2);
+    DECLARE @subtotal DECIMAL(18, 2);
+    DECLARE @ID_detalle INT;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        IF @cantidad_servicio <= 0
+        BEGIN
+            THROW 50001, 'La cantidad del servicio debe ser mayor que cero.', 1;
+        END;
+
+        IF NOT EXISTS (
+            SELECT 1
+            FROM dbo.RESERVA
+            WHERE ID_reserva = @ID_reserva
+        )
+        BEGIN
+            THROW 50002, 'La reserva indicada no existe.', 1;
+        END;
+
+        SELECT @precio_servicio = precio_servicio
+        FROM dbo.SERVICIO
+        WHERE ID_servicio = @ID_servicio;
+
+        IF @precio_servicio IS NULL
+        BEGIN
+            THROW 50003, 'El servicio indicado no existe.', 1;
+        END;
+
+        SET @subtotal = @precio_servicio * @cantidad_servicio;
+
+        INSERT INTO dbo.RESERVA_SERVICIO
+        (
+            ID_reserva,
+            ID_servicio,
+            cantidad_servicio,
+            subtotal
+        )
+        VALUES
+        (
+            @ID_reserva,
+            @ID_servicio,
+            @cantidad_servicio,
+            @subtotal
+        );
+
+        SET @ID_detalle = CONVERT(INT, SCOPE_IDENTITY());
+
+        COMMIT TRANSACTION;
+
+        SELECT
+            rs.ID_detalle,
+            rs.ID_reserva,
+            rs.ID_servicio,
+            s.tipo_servicio,
+            rs.cantidad_servicio,
+            s.precio_servicio,
+            rs.subtotal
+        FROM dbo.RESERVA_SERVICIO AS rs
+        INNER JOIN dbo.SERVICIO AS s
+            ON s.ID_servicio = rs.ID_servicio
+        WHERE rs.ID_detalle = @ID_detalle;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+        BEGIN
+            ROLLBACK TRANSACTION;
+        END;
+
+        THROW;
+    END CATCH;
+END;
+GO
 
 -- Factura insertar
 
