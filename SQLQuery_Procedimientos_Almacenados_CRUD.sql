@@ -639,13 +639,15 @@ BEGIN
     (
         id_factura,
         metodo_pago,
-        monto_pago
+        monto_pago,
+        fecha_pago
     )
     VALUES
     (
         @id_factura,
         @metodo_pago,
-        @monto_pago
+        @monto_pago,
+        GETDATE()
     );
 END
 GO

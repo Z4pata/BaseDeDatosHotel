@@ -1,4 +1,5 @@
-﻿using Hotel.SHARED.Views;
+﻿using Hotel.SHARED.dtos;
+using Hotel.SHARED.Views;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using System.Data;
@@ -10,6 +11,25 @@ namespace Hotel.API.Controllers
     public class PagosController : ControllerBase
     {
         private readonly string connectionString = "Server=localhost;Database=Hotel;Trusted_Connection=True;TrustServerCertificate=True;";
+
+        [HttpPost]
+        public async Task<IActionResult> RegistrarPago(CrearPagoRequest request)
+        {
+            await using var connection = new SqlConnection(connectionString);
+            await using var command = new SqlCommand("sp_Pago_Insertar", connection)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            command.Parameters.AddWithValue("@id_factura", request.IdFactura);
+            command.Parameters.AddWithValue("@metodo_pago", request.MetodoPago);
+            command.Parameters.AddWithValue("@monto_pago", request.MontoPago);
+
+            await connection.OpenAsync();
+            await command.ExecuteNonQueryAsync();
+
+            return StatusCode(StatusCodes.Status201Created, request);
+        }
 
         [HttpGet("recaudo")]
         public async Task<IActionResult> ObtenerRecaudoPorMetodoPago()
