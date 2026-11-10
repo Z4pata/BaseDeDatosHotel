@@ -484,6 +484,16 @@ BEGIN
 END
 GO
 
+CREATE OR ALTER PROCEDURE sp_Reserva_ConsultarId
+    @id_reserva INT
+AS
+BEGIN
+    SELECT *
+    FROM RESERVA
+    WHERE ID_reserva = @id_reserva;
+END
+GO
+
 CREATE OR ALTER PROCEDURE sp_Reserva_Eliminar
     @id_reserva INT
 AS
