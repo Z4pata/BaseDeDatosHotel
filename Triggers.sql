@@ -104,7 +104,53 @@ BEGIN
 END; 
 GO
 
--- 6. Actualiza el estado de una habitacion al hacer una reserva
+-- 6. Actualiza una factura cuando se contrata un servicio
+CREATE OR ALTER TRIGGER trg_ActualizarFacturaPorServicio
+ON RESERVA_SERVICIO
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Validar que exista una factura para cada reserva afectada
+    IF EXISTS
+    (
+        SELECT 1
+        FROM
+        (
+            SELECT DISTINCT ID_reserva
+            FROM inserted
+        ) AS reservas
+        LEFT JOIN dbo.FACTURA AS f
+            ON f.ID_reserva = reservas.ID_reserva
+        WHERE f.ID_factura IS NULL
+    )
+    BEGIN
+        THROW 51002,
+            'No existe una factura asociada a una de las reservas.',
+            1;
+    END;
+
+    -- Agrupar por reserva para soportar varios servicios
+    -- insertados en la misma operación
+    ;WITH TotalesServicios AS
+    (
+        SELECT
+            ID_reserva,
+            SUM(subtotal) AS total_servicios
+        FROM inserted
+        GROUP BY ID_reserva
+    )
+    UPDATE f
+    SET f.total_factura =
+        f.total_factura + ts.total_servicios
+    FROM dbo.FACTURA AS f
+    INNER JOIN TotalesServicios AS ts
+        ON ts.ID_reserva = f.ID_reserva;
+END;
+GO
+
+-- 7. Actualiza el estado de una habitacion al hacer una reserva
 CREATE TRIGGER trg_MarcarHabitacionOcupada 
 ON RESERVA_HABITACION 
 AFTER INSERT 
@@ -116,14 +162,12 @@ BEGIN
 END; 
 GO
 
--- Generar factura al reservar una habitacion
+-- 8. Generar factura al reservar una habitacion
 CREATE OR ALTER TRIGGER trg_GenerarFacturaReservaHabitacion
 ON RESERVA_HABITACION
 AFTER INSERT
 AS
 BEGIN
-    SET NOCOUNT ON;
-
     DECLARE @ReservasAfectadas TABLE
     (
         ID_reserva INT PRIMARY KEY
@@ -210,7 +254,7 @@ BEGIN
 END;
 GO
 
--- 7. Actualiza el estado de una habitacion al terminar la reserva
+-- 9. Actualiza el estado de una habitacion al terminar la reserva
 CREATE TRIGGER trg_LiberarHabitacion 
 ON RESERVA_HABITACION 
 AFTER DELETE 
